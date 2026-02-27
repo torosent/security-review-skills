@@ -218,7 +218,7 @@ copy\(.*\[:.*\]\s*,.*\[:.*\])|append\(.*\[:.*\]\s*,
 ## 18. Dependency & Module Security — CWE-829 · MEDIUM
 
 ```
-replace\s+.*=>\s*\.\./ |replace\s+.*=>\s*\./|replace\s+.*=>\s*/
+replace\s+.*=>\s*\.\./|replace\s+.*=>\s*\./|replace\s+.*=>\s*/
 retract\s+\[|retract\s+v
 GONOSUMCHECK|GONOSUMDB|GOFLAGS.*-insecure
 GOPRIVATE.*\*|GONOSUMCHECK.*\*
@@ -231,7 +231,7 @@ GOPRIVATE.*\*|GONOSUMCHECK.*\*
 ## Quick Severity Reference
 
 | Severity | Categories |
-|----------|------------|
+|----------|-----------|
 | **CRITICAL** | SQL Injection, Command Injection, Path Traversal, JWT/Auth bypass |
 | **HIGH** | SSRF, Insecure TLS, Race Conditions, Unsafe pkg, Integer Overflow, Template Injection, Crypto Misuse |
 | **MEDIUM** | HTTP Security, Error Disclosure, File Upload, Framework issues, Context/Timeout, Memory Safety, Dependencies |

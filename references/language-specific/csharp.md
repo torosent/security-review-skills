@@ -21,7 +21,7 @@
 ## 2 · SQL Injection — CWE-89 (Critical)
 
 ```
-SqlCommand\(.*\+|SqlCommand\(.*\$"|\. CommandText\s*=.*\+|\.CommandText\s*=.*\$"
+SqlCommand\(.*\+|SqlCommand\(.*\$"|\.CommandText\s*=.*\+|\.CommandText\s*=.*\$"
 \.ExecuteSqlRaw\(.*\$"|\.ExecuteSqlRaw\(.*\+|\.FromSqlRaw\(.*\$"|\.FromSqlRaw\(.*\+
 string\.(Format|Concat).*SELECT|string\.(Format|Concat).*INSERT|string\.(Format|Concat).*UPDATE
 \.Query\(.*\$"|\.Query\(.*\+|\.Execute\(.*\$"|\.Execute\(.*\+
@@ -231,7 +231,7 @@ Regex\.(Match|Replace|IsMatch)\(.*user(?!.*TimeSpan)
 # Critical — RCE / Injection
 grep -rPn 'BinaryFormatter|SoapFormatter|NetDataContractSerializer|ObjectStateFormatter|LosFormatter' .
 grep -rPn 'TypeNameHandling\.(All|Auto|Objects|Arrays)' .
-grep -rPn 'SqlCommand\(.*(\+|\$")|\. CommandText\s*=.*(\+|\$")' .
+grep -rPn 'SqlCommand\(.*(\+|\$")|\.CommandText\s*=.*(\+|\$")' .
 grep -rPn 'ExecuteSqlRaw\(.*(\+|\$")|FromSqlRaw\(.*(\+|\$")' .
 grep -rPn 'Process\.Start\(.*(\+|\$")' .
 

@@ -17,7 +17,7 @@
 ## HIPAA Security Rule → Security Checks
 
 | Section | Requirement | Automated Check |
-|---------|-------------|----------------|
+|---------|-------------|-----------------|
 | §164.312(a)(1) | Access Control | Auth on PHI endpoints, session management |
 | §164.312(a)(2)(iv) | Encryption | AES-256 for PHI at rest |
 | §164.312(c)(1) | Integrity | Input validation, checksums on PHI |
@@ -29,7 +29,7 @@
 ## PCI-DSS v4.0 → Security Checks
 
 | Req | Description | Automated Check |
-|-----|-------------|----------------|
+|-----|-------------|-----------------|
 | 2.2.7 | No unnecessary services | Minimal container images, no debug in prod |
 | 3.5 | Protect stored PAN | grep for credit card patterns, encryption checks |
 | 4.2 | Encrypt transmission | TLS enforcement, certificate validation |
