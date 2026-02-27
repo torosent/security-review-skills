@@ -4,19 +4,19 @@
 
 ---
 
-## 1. SQL Injection — CWE-89 · CRITICAL
+## 1. SQL Injection — CWE-89 · Critical
 
 | Source | Grep Pattern |
 |--------|-------------|
-| database/sql | `db\.(Query\|Exec\|QueryRow)\(.*fmt\.Sprintf` `db\.(Query\|Exec\|QueryRow)\(.*\+\s*\w` |
-| fmt building | `Sprintf\(.*(SELECT\|INSERT\|UPDATE\|DELETE\|WHERE\|FROM)` |
+| database/sql | `db\.(Query|Exec|QueryRow)\(.*fmt\.Sprintf` `db\.(Query|Exec|QueryRow)\(.*\+\s*\w` |
+| fmt building | `Sprintf\(.*(SELECT|INSERT|UPDATE|DELETE|WHERE|FROM)` |
 | GORM | `\.Raw\(.*fmt\.Sprintf` `\.Exec\(.*\+\s*\w` `\.Where\(.*fmt\.Sprintf` `\.Where\(.*\+\s*\w` |
 | sqlx | `\.Select\(.*fmt\.Sprintf` `\.NamedExec\(.*\+` `\.Get\(.*Sprintf` |
-| pgx | `pgx\.\w+\.(Query\|Exec)\(.*Sprintf` `conn\.(Query\|Exec)\(.*\+` |
+| pgx | `pgx\.\w+\.(Query|Exec)\(.*Sprintf` `conn\.(Query|Exec)\(.*\+` |
 
 **Fix**: Parameterized queries only: `db.Query("SELECT * FROM t WHERE id=$1", id)`. GORM: `.Where("id = ?", id)`. Never interpolate user input into SQL strings.
 
-## 2. Command Injection — CWE-78 · CRITICAL
+## 2. Command Injection — CWE-78 · Critical
 
 ```
 exec\.Command\("(sh|bash|cmd|powershell)"
@@ -27,7 +27,7 @@ os\.StartProcess\(|syscall\.Exec\(|syscall\.ForkExec\(
 
 **Fix**: `exec.Command(binary, arg1, arg2)` — pass args as separate params. Never invoke shell. Validate binary name against allowlist.
 
-## 3. Path Traversal — CWE-22 · CRITICAL
+## 3. Path Traversal — CWE-22 · Critical
 
 ```
 filepath\.Join\(.*r\.(URL|Form|PostForm|Header)|filepath\.Join\(.*\.Param\(
@@ -44,7 +44,7 @@ zip\.OpenReader|tar\.NewReader|\.Next\(\).*\.Name
 
 **Fix**: `cleaned := filepath.Clean(p); if !strings.HasPrefix(cleaned, baseDir) { reject }`. For archives: validate every entry name before extraction.
 
-## 4. SSRF — CWE-918 · HIGH
+## 4. SSRF — CWE-918 · High
 
 ```
 http\.(Get|Post|Head|PostForm)\(.*r\.(URL|Form|PostForm)
@@ -58,7 +58,7 @@ url\.Parse\(.*r\.(URL|Form)|url\.Parse\(.*input|url\.Parse\(.*param
 
 **Fix**: Allowlist schemes (`https` only) + allowlist/blocklist hosts. Use custom `Transport.DialContext` to validate resolved IPs.
 
-## 5. Insecure TLS — CWE-295 · HIGH
+## 5. Insecure TLS — CWE-295 · High
 
 ```
 InsecureSkipVerify:\s*true
@@ -70,12 +70,12 @@ CipherSuites:.*tls\.TLS_RSA_|CipherSuites:.*RC4|CipherSuites:.*3DES
 
 **Fix**: `InsecureSkipVerify: false`, `MinVersion: tls.VersionTLS12`. Remove custom `VerifyPeerCertificate` that always returns nil. Use default cipher suites.
 
-## 6. Race Conditions — CWE-362 · HIGH
+## 6. Race Conditions — CWE-362 · High
 
 | Pattern | Risk |
 |---------|------|
 | `go\s+func\s*\(` `go\s+\w+\(` | Goroutine spawning — check shared state |
-| `var\s+\w+\s*(map\|=\s*make\(map)` | Maps are NOT goroutine-safe |
+| `var\s+\w+\s*(map|=\s*make\(map)` | Maps are NOT goroutine-safe |
 | `sync\.Mutex` without matching `\.Lock\(\)` | Declared but unused mutex |
 | `sync\.Pool` | Items may retain sensitive data across reuse |
 
@@ -84,7 +84,7 @@ CipherSuites:.*tls\.TLS_RSA_|CipherSuites:.*RC4|CipherSuites:.*3DES
 
 **Fix**: Use `sync.Mutex`/`sync.RWMutex`, `sync.Map` for concurrent maps, `sync/atomic` for counters. Run `go build -race` / `go test -race`.
 
-## 7. Unsafe Package — CWE-242 · HIGH
+## 7. Unsafe Package — CWE-242 · High
 
 ```
 "unsafe"|unsafe\.Pointer|unsafe\.Sizeof|unsafe\.Alignof|unsafe\.Offsetof
@@ -94,7 +94,7 @@ reflect\.SliceHeader|reflect\.StringHeader
 
 **Fix**: Avoid `unsafe` entirely. If required, document justification. For CGo: validate all pointers crossing the Go/C boundary. Never pass Go pointers to C code that retains them.
 
-## 8. Integer Overflow — CWE-190 · HIGH
+## 8. Integer Overflow — CWE-190 · High
 
 ```
 int32\(.*int64|int16\(.*int32|int8\(.*int16|uint8\(.*uint16
@@ -104,7 +104,7 @@ len\(.*\)\s*[\+\-\*]|cap\(.*\)\s*[\+\-\*]
 
 **Fix**: Bounds-check before narrowing casts: `if v > math.MaxInt32 { error }`. Use `math/big` for large arithmetic. Validate `strconv.Atoi` results before using in allocations.
 
-## 9. Template Injection — CWE-94 · HIGH
+## 9. Template Injection — CWE-1336 · High
 
 ```
 "text/template"|text/template\.New|text/template\.Must
@@ -115,23 +115,23 @@ template\.New\(.*\.Parse\(.*\+
 
 **Fix**: Use `html/template` (NOT `text/template`). Never pass user input to `template.Parse()`. Avoid wrapping user data in `template.HTML()` — this bypasses auto-escaping.
 
-## 10. Cryptographic Misuse — CWE-327 · HIGH
+## 10. Cryptographic Misuse — CWE-327 · High
 
 | Pattern | Issue |
 |---------|-------|
-| `"crypto/md5"\|md5\.New\|md5\.Sum` | MD5 broken for security |
-| `"crypto/sha1"\|sha1\.New\|sha1\.Sum` | SHA1 deprecated |
-| `"crypto/des"\|des\.NewCipher\|des\.NewTripleDESCipher` | DES/3DES weak |
-| `"crypto/rc4"\|rc4\.NewCipher` | RC4 broken |
-| `"math/rand"\|rand\.New\(\|rand\.Intn\|rand\.Int\(\)` | Not cryptographically secure |
-| `cipher\.NewCBCEncrypter\|cipher\.NewCBCDecrypter` | CBC mode — use GCM |
+| `"crypto/md5"|md5\.New|md5\.Sum` | MD5 broken for security |
+| `"crypto/sha1"|sha1\.New|sha1\.Sum` | SHA1 deprecated |
+| `"crypto/des"|des\.NewCipher|des\.NewTripleDESCipher` | DES/3DES weak |
+| `"crypto/rc4"|rc4\.NewCipher` | RC4 broken |
+| `"math/rand"|rand\.New\(|rand\.Intn|rand\.Int\(\)` | Not cryptographically secure |
+| `cipher\.NewCBCEncrypter|cipher\.NewCBCDecrypter` | CBC mode — use GCM |
 | `aes\.NewCipher\(.*\[\d+\]byte\{` | Hardcoded key |
 | `rsa\.EncryptPKCS1v15` | Use OAEP instead |
 | `iv\s*:?=\s*\[\]byte\{` `nonce\s*:?=\s*\[\]byte\{` | Static IV/nonce |
 
 **Fix**: Use `crypto/rand` for random. Use `aes.NewCipher` + `cipher.NewGCM` (AEAD). Use `rsa.EncryptOAEP`. Generate keys/IVs with `crypto/rand.Read()`.
 
-## 11. Authentication & JWT — CWE-287 · CRITICAL
+## 11. Authentication & JWT — CWE-287 · Critical
 
 ```
 "github\.com/dgrijalva/jwt-go"|dgrijalva/jwt-go
@@ -143,7 +143,7 @@ token.*r\.(URL|Form)\.Get|token.*query\.Get
 
 **Fix**: Use `github.com/golang-jwt/jwt/v5`. Enforce algorithm: `jwt.WithValidMethods([]string{"RS256"})`. Validate `iss`, `aud`, `exp`. Never put tokens in URL query params. Use strong secrets (≥256-bit).
 
-## 12. HTTP Security — CWE-16 · MEDIUM–HIGH
+## 12. HTTP Security — CWE-16 · Medium–High
 
 ```
 Access-Control-Allow-Origin.*\*|AllowAllOrigins:\s*true|cors\.Default\(\)
@@ -156,7 +156,7 @@ w\.Header\(\)\.Set\(.*r\.(URL|Form)|w\.Header\(\)\.Add\(.*r\.(URL|Form)
 
 **Fix**: Explicit CORS origins (no `*` with credentials). Set `Secure: true, HttpOnly: true, SameSite: Strict` on cookies. Use `ListenAndServeTLS`. Never reflect user input in response headers (CRLF injection).
 
-## 13. Error Handling & Info Disclosure — CWE-209 · MEDIUM
+## 13. Error Handling & Info Disclosure — CWE-209 · Medium
 
 ```
 _\s*,?\s*=\s*\w+\.\w+\(|_\s*=\s*(json|xml|yaml)\.(Marshal|Unmarshal)
@@ -169,7 +169,7 @@ panic\(.*r\.(URL|Form)|panic\(.*err
 
 **Fix**: Never expose `err.Error()` to clients — return generic messages. Wrap handlers with `recover()`. Disable `pprof` in production. Redact secrets from logs.
 
-## 14. File Upload — CWE-434 · MEDIUM
+## 14. File Upload — CWE-434 · Medium
 
 ```
 r\.ParseMultipartForm\(|r\.MultipartReader\(|r\.FormFile\(
@@ -179,20 +179,20 @@ multipart\.File(?!.*DetectContentType)|ParseMultipartForm\(\s*0\s*\)
 
 **Fix**: Validate Content-Type via `http.DetectContentType()`. Limit size: `r.ParseMultipartForm(10 << 20)`. Sanitize filename: strip path components. Use temp dirs with cleanup via `defer`.
 
-## 15. Framework-Specific — CWE-20 · MEDIUM
+## 15. Framework-Specific — CWE-20 · Medium
 
 | Framework | Pattern | Risk |
 |-----------|---------|------|
-| Gin | `c\.Bind\((?!.*Valid)\|c\.ShouldBind\((?!.*Valid)` | Missing input validation |
+| Gin | `c\.Bind\((?!.*Valid)|c\.ShouldBind\((?!.*Valid)` | Missing input validation |
 | Gin | `gin\.SetMode\(gin\.DebugMode\)` | Debug in production |
-| Gin | `c\.HTML\(.*c\.(Query\|Param\|PostForm)` | XSS via template |
+| Gin | `c\.HTML\(.*c\.(Query|Param|PostForm)` | XSS via template |
 | Echo | `echo\.New\(\)(?!.*CSRF)` | Missing CSRF middleware |
 | Echo | `c\.Bind\((?!.*Validate)` | Binding without validation |
 | Fiber | `c\.Body\(\).*c\.Body\(\)` | Body reuse (fasthttp pool) |
 | net/http | `http\.DefaultClient` | No timeout — DoS/hang |
 | net/http | `http\.ListenAndServe\(":` | No TLS |
 
-## 16. Context & Timeout — CWE-400 · MEDIUM
+## 16. Context & Timeout — CWE-400 · Medium
 
 ```
 context\.Background\(\).*http\.(Get|Post|NewRequest)
@@ -204,7 +204,7 @@ context\.WithCancel\((?!.*defer\s+cancel)
 
 **Fix**: Always use request context: `req.WithContext(ctx)`. Set `http.Client{Timeout: 30*time.Second}`. Always `defer cancel()` after `context.WithTimeout/WithCancel`.
 
-## 17. Memory Safety — CWE-119 · MEDIUM
+## 17. Memory Safety — CWE-119 · Medium
 
 ```
 \(\*reflect\.SliceHeader\)|reflect\.StringHeader
@@ -215,7 +215,7 @@ copy\(.*\[:.*\]\s*,.*\[:.*\])|append\(.*\[:.*\]\s*,
 
 **Fix**: Avoid `reflect.SliceHeader` manipulation. Don't share `[]byte` across goroutines without sync. Zero sensitive data from `sync.Pool` items before returning. Use `copy()` to avoid aliasing.
 
-## 18. Dependency & Module Security — CWE-829 · MEDIUM
+## 18. Dependency & Module Security — CWE-829 · Medium
 
 ```
 replace\s+.*=>\s*\.\./|replace\s+.*=>\s*\./|replace\s+.*=>\s*/
@@ -226,15 +226,39 @@ GOPRIVATE.*\*|GONOSUMCHECK.*\*
 
 **Fix**: Remove `replace` directives pointing to local paths before release. Run `go mod verify`. Don't set `GONOSUMCHECK=*`. Keep `GOPRIVATE` scoped narrowly. Use `govulncheck` to scan dependencies.
 
+## 19. Insecure Deserialization — encoding/gob — CWE-502 · High
+
+```
+gob\.NewDecoder|gob\.Decode|encoding/gob.*user|gob\.Register.*interface
+```
+
+**Fix**: Never decode gob data from untrusted sources. Use JSON for external data. If gob is required, validate and sanitize before decoding.
+
+## 20. Open Redirect — CWE-601 · Medium
+
+```
+http\.Redirect\(.*r\.(URL|Form|PostForm)|http\.Redirect\(.*user|c\.Redirect\(.*param
+```
+
+**Fix**: Validate redirect URL is relative or on allowlisted domains. Check `url.Parse(target).Host` against expected hosts.
+
+## 21. NoSQL Injection — CWE-943 · High
+
+```
+mongo\.Client|bson\.(M|D|A).*user|bson\..*request\.|Collection\.(Find|Update|Delete).*fmt\.Sprintf
+```
+
+**Fix**: Use typed BSON builders. Never concatenate user input into BSON documents.
+
 ---
 
 ## Quick Severity Reference
 
 | Severity | Categories |
 |----------|-----------|
-| **CRITICAL** | SQL Injection, Command Injection, Path Traversal, JWT/Auth bypass |
-| **HIGH** | SSRF, Insecure TLS, Race Conditions, Unsafe pkg, Integer Overflow, Template Injection, Crypto Misuse |
-| **MEDIUM** | HTTP Security, Error Disclosure, File Upload, Framework issues, Context/Timeout, Memory Safety, Dependencies |
+| **Critical** | SQL Injection, Command Injection, Path Traversal, JWT/Auth bypass |
+| **High** | SSRF, Insecure TLS, Race Conditions, Unsafe pkg, Integer Overflow, Template Injection, Crypto Misuse |
+| **Medium** | HTTP Security, Error Disclosure, File Upload, Framework issues, Context/Timeout, Memory Safety, Dependencies |
 
 ## Detection Commands
 

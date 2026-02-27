@@ -223,6 +223,29 @@ Regex\.(Match|Replace|IsMatch)\(.*user(?!.*TimeSpan)
 ```
 **Fix**: Always set `matchTimeout`. Use `RegexOptions.NonBacktracking` (.NET 7+). Avoid `(.*)+ / (.+)+` patterns.
 
+## 21 · SSRF — Server-Side Request Forgery — CWE-918 (High)
+
+```
+HttpClient\.(Get|Post|Put|Delete).*user|HttpClient\.(Get|Post|Put|Delete).*input|HttpClient\.(Get|Post|Put|Delete).*param
+WebClient\.(Download|Upload).*user|WebClient\.(Download|Upload).*request
+RestClient\.(Get|Post).*user|new Uri\(.*Request\.|new HttpRequestMessage\(.*input
+```
+**Fix**: Validate URL against allowlist, block private IP ranges (10.x, 172.16-31.x, 192.168.x, 169.254.x), validate scheme (https only).
+
+## 22 · NoSQL Injection — CWE-943 (High)
+
+```
+MongoClient|IMongoCollection|MongoCollection|BsonDocument.*user|FilterDefinition.*\+|Builders.*Filter.*user
+```
+**Fix**: Use typed filter builders, never concatenate user input into BSON queries.
+
+## 23 · Template Injection — CWE-1336 (High)
+
+```
+RazorEngine|RazorLight.*Compile.*user|Scriban.*Template\.Parse.*input|Liquid.*Template\.Parse.*user
+```
+**Fix**: Never compile templates from user input. Use pre-compiled templates with data binding.
+
 ---
 
 ## Quick-Reference: Top Grep Patterns (All Severities)

@@ -4,11 +4,11 @@
 
 | Check | Grep Pattern | Severity |
 |-------|-------------|----------|
-| Running as root | `USER root\|^(?!.*USER)` (no USER directive) | High |
-| Using `latest` tag | `FROM\s+\w+:latest\|FROM\s+\w+\s*$` (no tag) | Medium |
-| Secrets in build args | `ARG.*password\|ARG.*secret\|ARG.*key\|ARG.*token` | Critical |
+| Running as root | `USER root` — also check: `grep -c 'USER' Dockerfile` — if count is 0, flag as High severity | High |
+| Using `latest` tag | `FROM\s+\w+:latest|FROM\s+\w+\s*$` (no tag) | Medium |
+| Secrets in build args | `ARG.*password|ARG.*secret|ARG.*key|ARG.*token` | Critical |
 | `ADD` with remote URL | `ADD\s+https?://` | Medium |
-| Privileged operations | `--privileged\|--cap-add\|SYS_ADMIN\|NET_ADMIN` | High |
+| Privileged operations | `--privileged|--cap-add|SYS_ADMIN|NET_ADMIN` | High |
 | Missing healthcheck | No `HEALTHCHECK` directive | Low |
 | Shell form CMD/RUN | `CMD\s+[^[]` (not exec form) | Low |
 
@@ -17,11 +17,11 @@
 | Check | Grep Pattern | Severity |
 |-------|-------------|----------|
 | Privileged container | `privileged:\s*true` | Critical |
-| Run as root | `runAsNonRoot:\s*false\|runAsUser:\s*0` | High |
+| Run as root | `runAsNonRoot:\s*false|runAsUser:\s*0` | High |
 | No resource limits | Missing `resources.limits` | Medium |
 | Host network | `hostNetwork:\s*true` | High |
-| Host PID/IPC | `hostPID:\s*true\|hostIPC:\s*true` | High |
-| Wildcard RBAC | `resources:.*\["?\*"?\]\|verbs:.*\["?\*"?\]` | Critical |
+| Host PID/IPC | `hostPID:\s*true|hostIPC:\s*true` | High |
+| Wildcard RBAC | `resources:.*\["?\*"?\]|verbs:.*\["?\*"?\]` | Critical |
 | No seccomp profile | Missing `seccompProfile` | Medium |
 | Default namespace | `namespace:\s*default` | Low |
 | No readOnlyRootFS | `readOnlyRootFilesystem:\s*false` or missing | Medium |
@@ -31,13 +31,13 @@
 
 | Check | Grep Pattern | Severity |
 |-------|-------------|----------|
-| Public access | `public_access\s*=\s*true\|publicAccess.*Enabled\|publicNetworkAccess.*Enabled` | High |
-| HTTP allowed | `https_only\s*=\s*false\|httpsOnly.*false` | High |
-| No encryption | `encryption\s*=\s*false\|sseAlgorithm.*None` | High |
-| Open security group | `0\.0\.0\.0/0\|::/0` in ingress rules | Critical |
-| Hardcoded secrets | `password\s*=\s*"\|admin_password\s*=\s*"` in .tf/.bicep | Critical |
-| No logging | Missing `logging\|diagnostic_setting\|audit` blocks | Medium |
-| Outdated TLS | `tls_version.*1\.[01]\|minTlsVersion.*TLS1_0\|TLS1_1` | High |
+| Public access | `public_access\s*=\s*true|publicAccess.*Enabled|publicNetworkAccess.*Enabled` | High |
+| HTTP allowed | `https_only\s*=\s*false|httpsOnly.*false` | High |
+| No encryption | `encryption\s*=\s*false|sseAlgorithm.*None` | High |
+| Open security group | `0\.0\.0\.0/0|::/0` in ingress rules | Critical |
+| Hardcoded secrets | `password\s*=\s*"|admin_password\s*=\s*"` in .tf/.bicep | Critical |
+| No logging | Missing `logging|diagnostic_setting|audit` blocks | Medium |
+| Outdated TLS | `tls_version.*1\.[01]|minTlsVersion.*TLS1_0|TLS1_1` | High |
 
 ## Helm Charts
 

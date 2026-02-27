@@ -2,7 +2,7 @@
 
 ## A01: Broken Access Control
 - **Pattern**: Missing authorization checks, IDOR, path traversal
-- **Grep**: `@AllowAnonymous|[AllowAnonymous]|\.permit|noAuth|skipAuth|isAdmin.*req\.(params|query|body)`
+- **Grep**: `@AllowAnonymous|\[AllowAnonymous\]|\.permit|noAuth|skipAuth|isAdmin.*req\.(params|query|body)`
 - **Fix**: Enforce least-privilege access, validate object ownership server-side
 
 ## A02: Cryptographic Failures
@@ -30,12 +30,12 @@
 
 ## A07: Authentication Failures
 - **Pattern**: Weak passwords, missing MFA, session fixation
-- **Grep**: `password.*min.*[0-5]|session\.regenerate|rememberMe|maxAge.*31536000`
+- **Grep**: `password.*min.*[0-5]|rememberMe|maxAge.*31536000`
 - **Fix**: Strong password policies, MFA, secure session management
 
 ## A08: Software & Data Integrity
 - **Pattern**: Insecure deserialization, missing integrity checks, untrusted CI/CD
-- **Grep**: `pickle\.load|yaml\.load\(|BinaryFormatter|ObjectInputStream|JSON\.parse.*user`
+- **Grep**: `pickle\.load|yaml\.load\(|BinaryFormatter|ObjectInputStream`
 - **Fix**: Verify integrity (SRI, signatures), avoid unsafe deserialization
 
 ## A09: Logging & Monitoring Failures
